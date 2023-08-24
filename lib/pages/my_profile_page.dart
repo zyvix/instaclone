@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../model/post_model.dart';
 
@@ -27,12 +28,57 @@ class _MyProfilePageState extends State<MyProfilePage> {
   String image_3=
       "https://images.unsplash.com/photo-1647891941746-fe1d53ddc7a6";
 
+  final ImagePicker _picker = ImagePicker();
+
+  _imgFromGallery() async{
+    XFile? image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
+    setState(() {
+      _image = File(image!.path);
+    });
+  }
+
+  _imgFromCamera() async{
+    XFile? image = await _picker.pickImage(source: ImageSource.camera, imageQuality: 50);
+    setState(() {
+      _image = File(image!.path);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     items.add(Post(image_1, "Best photo I have ever seen"));
     items.add(Post(image_2, "Best photo I have ever seen"));
     items.add(Post(image_3, "Best photo I have ever seen"));
+  }
+
+  void _showPicker(context){
+    showModalBottomSheet(context: context, builder: (BuildContext context){
+      return SafeArea(
+        child: Container(
+          child: Wrap(
+              children: [
+                new ListTile(
+                  leading: new Icon(Icons.photo_library),
+                  title: Text("Pick a photo"),
+                  onTap: (){
+                    _imgFromGallery();
+                    Navigator.of(context).pop();
+                  },
+                ),
+                new ListTile(
+                  leading: new Icon(Icons.photo_camera),
+                  title: Text("Take a photo"),
+                  onTap: (){
+                    _imgFromCamera();
+                    Navigator.of(context).pop();
+                  },
+                )
+              ]
+          ),
+        ),
+      );
+    });
   }
 
   @override
@@ -67,7 +113,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
               children: [
                 //myphoto
                 GestureDetector(
-                  onTap: (){},
+                  onTap: (){
+                    _showPicker(context);
+                  },
                   child: Stack(
                     children: [
                       Container(
@@ -81,8 +129,13 @@ class _MyProfilePageState extends State<MyProfilePage> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(35),
-                          child: Image(
+                          child: _image == null ? Image(
                             image: AssetImage("assets/images/avatar-3814081_1280.png"),
+                            width: 70,
+                            height: 70,
+                            fit: BoxFit.cover,
+                          ) : Image.file(
+                            _image!,
                             width: 70,
                             height: 70,
                             fit: BoxFit.cover,
@@ -188,8 +241,36 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   ),
                 ),
 
-
-                Container(
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            axisCount = 1;
+                          });
+                        },
+                        child: Icon(
+                          Icons.list_alt,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: (){
+                          setState(() {
+                            axisCount = 2;
+                          });
+                        },
+                        child: Icon(
+                          Icons.grid_view,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10,),
+                Expanded(
                   child: GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: axisCount,

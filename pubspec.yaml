@@ -1,0 +1,36 @@
+name: instaclone
+description: A new Flutter project.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.6 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  fluttertoast: ^8.0.9
+  image_picker: ^0.8.5+3
+  cached_network_image: ^3.2.2
+  eva_icons_flutter: ^3.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+
+  fonts:
+    - family: Billabong
+      fonts:
+        - asset: assets/fonts/FontsFree-Net-Billabong.ttf

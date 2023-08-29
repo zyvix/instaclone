@@ -3,7 +3,10 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:instaclone/model/member_model.dart';
 import 'package:instaclone/services/auth_service.dart';
+import 'package:instaclone/services/db_service.dart';
+import 'package:instaclone/services/file_service.dart';
 
 import '../model/post_model.dart';
 
@@ -19,7 +22,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
   int axisCount = 1;
   List<Post> items = [];
   File?  _image;
-  String fullName = "Zafar", email = "test@gmail.com", img_url = "";
+  String fullname = "", email = "", img_url = "";
   int count_posts = 0, count_followers = 0, count_following = 0;
 
   String image_1 =
@@ -36,6 +39,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     setState(() {
       _image = File(image!.path);
     });
+    _apiChangePhoto();
   }
 
   _imgFromCamera() async{
@@ -43,6 +47,24 @@ class _MyProfilePageState extends State<MyProfilePage> {
     setState(() {
       _image = File(image!.path);
     });
+    _apiChangePhoto();
+  }
+
+  void _apiChangePhoto(){
+    if(_image == null) return;
+    setState(() {
+      isLoading = true;
+    });
+    FileService.uploadUserImage(_image!).then((downloadUrl) => {
+      _apiUpdateUser(downloadUrl),
+    });
+  }
+
+  _apiUpdateUser(String downloadUrl)async{
+    Member member = await DBService.loadMember();
+    member.img_url = downloadUrl;
+    await DBService.updateMember(member);
+    _apiLoadMember();
   }
 
   @override
@@ -51,6 +73,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     items.add(Post(image_1, "Best photo I have ever seen"));
     items.add(Post(image_2, "Best photo I have ever seen"));
     items.add(Post(image_3, "Best photo I have ever seen"));
+    _apiLoadMember();
   }
 
   void _showPicker(context){
@@ -79,6 +102,24 @@ class _MyProfilePageState extends State<MyProfilePage> {
           ),
         ),
       );
+    });
+  }
+
+  void _apiLoadMember(){
+    setState(() {
+      isLoading = true;
+    });
+    DBService.loadMember().then((value) => {
+      _showMemberInfo(value),
+    });
+  }
+
+  void _showMemberInfo(Member member){
+    setState(() {
+      isLoading = false;
+      this.fullname = member.fullname;
+      this.email = member.email;
+      this.img_url = member.img_url;
     });
   }
 
@@ -132,13 +173,13 @@ class _MyProfilePageState extends State<MyProfilePage> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(35),
-                          child: _image == null ? Image(
+                          child: img_url == null || img_url.isEmpty ? Image(
                             image: AssetImage("assets/images/avatar-3814081_1280.png"),
                             width: 70,
                             height: 70,
                             fit: BoxFit.cover,
-                          ) : Image.file(
-                            _image!,
+                          ) : Image.network(
+                            img_url,
                             width: 70,
                             height: 70,
                             fit: BoxFit.cover,
@@ -165,7 +206,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
 
                 //myinfo
                 SizedBox(height: 10,),
-                Text(fullName.toUpperCase(),
+                Text(fullname.toUpperCase(),
                   style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)),
                 SizedBox(height: 3,),
                 Text(email,

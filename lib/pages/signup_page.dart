@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:instaclone/model/member_model.dart';
 import 'package:instaclone/pages/home_page.dart';
 import 'package:instaclone/pages/signin_page.dart';
 import 'package:instaclone/services/auth_service.dart';
+import 'package:instaclone/services/db_service.dart';
 
 import '../services/utils_service.dart';
 
@@ -25,7 +27,7 @@ class _SignUpPageState extends State<SignUpPage> {
     Navigator.pushReplacementNamed(context, SignInPage.id);
   }
 
-  _doSignUp(){
+  _doSignUp()async{
     String fullname = fullnameController.text.toString().trim();
     String password = passwordController.text.toString().trim();
     String email = emailController.text.toString().trim();
@@ -38,12 +40,14 @@ class _SignUpPageState extends State<SignUpPage> {
     setState(() {
       isLoading = true;
     });
-    AuthService.signUpUser(fullname, email, password).then((value) => {
-      _responseSignUp(value!),
+    var response = await AuthService.signUpUser(fullname, email, password);
+    Member member = Member(fullname, email);
+    DBService.storeMember(member).then((value) => {
+      storeMemberToDB(member),
     });
   }
 
-  _responseSignUp(User firebaseUser){
+  void storeMemberToDB(Member member){
     setState(() {
       isLoading = false;
     });

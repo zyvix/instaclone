@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:instaclone/services/db_service.dart';
 
 import '../model/member_model.dart';
 
@@ -14,13 +15,26 @@ class _MySearchPageState extends State<MySearchPage> {
   var SearchController = TextEditingController();
   List<Member> items = [];
 
+  void _apiSearchMembers(String keyword){
+    setState(() {
+      isLoading = true;
+    });
+    DBService.searchMember(keyword).then((users) => {
+      _respSearchMembers(users),
+    });
+  }
+
+  void _respSearchMembers(List<Member> members){
+    setState(() {
+      items = members;
+      isLoading = false;
+    });
+  }
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    items.add(Member("test", "test@gmail.com"));
-    items.add(Member("test1", "test1@gmail.com"));
-    items.add(Member("test2", "test2@gmail.com"));
+    _apiSearchMembers("");
   }
 
   @override
@@ -93,12 +107,12 @@ class _MySearchPageState extends State<MySearchPage> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(22.5),
-              child: Image(
+              child: member.img_url.isEmpty ? Image(
                 image: AssetImage("assets/images/avatar-3814081_1280.png"),
                 width: 45,
                 height: 45,
                 fit: BoxFit.cover,
-              ),
+              ) : Image.network(member.img_url, width: 45, height: 45, fit: BoxFit.cover,),
             ),
           ),
           SizedBox(width: 15,),
@@ -106,7 +120,7 @@ class _MySearchPageState extends State<MySearchPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(member.fullName, style: TextStyle(fontWeight: FontWeight.bold),),
+              Text(member.fullname, style: TextStyle(fontWeight: FontWeight.bold),),
               SizedBox(height: 3,),
               Text(member.email, style: TextStyle(color: Colors.black54),),
             ],

@@ -25,13 +25,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
   String fullname = "", email = "", img_url = "";
   int count_posts = 0, count_followers = 0, count_following = 0;
 
-  String image_1 =
-      "https://images.unsplash.com/photo-1509695507497-903c140c43b0";
-  String image_2 =
-      "https://images.unsplash.com/photo-1536640217560-1085f2c1bcdb";
-  String image_3=
-      "https://images.unsplash.com/photo-1647891941746-fe1d53ddc7a6";
-
   final ImagePicker _picker = ImagePicker();
 
   _imgFromGallery() async{
@@ -67,13 +60,24 @@ class _MyProfilePageState extends State<MyProfilePage> {
     _apiLoadMember();
   }
 
+  _apiLoadPosts(){
+    DBService.loadPosts().then((value) => {
+      _resLoadPosts(value),
+    });
+  }
+
+  _resLoadPosts(List<Post> posts){
+    setState(() {
+      items.insertAll(0, posts);
+      count_posts = posts.length;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    items.add(Post(image_1, "Best photo I have ever seen"));
-    items.add(Post(image_2, "Best photo I have ever seen"));
-    items.add(Post(image_3, "Best photo I have ever seen"));
     _apiLoadMember();
+    _apiLoadPosts();
   }
 
   void _showPicker(context){

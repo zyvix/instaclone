@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:instaclone/services/db_service.dart';
 
 import '../model/post_model.dart';
 
@@ -15,19 +16,36 @@ class _MyLikesPageState extends State<MyLikesPage> {
   bool isLoading = false;
   List<Post> items = [];
 
-  String image_1 =
-      "https://images.unsplash.com/photo-1509695507497-903c140c43b0";
-  String image_2 =
-      "https://images.unsplash.com/photo-1536640217560-1085f2c1bcdb";
-  String image_3=
-      "https://images.unsplash.com/photo-1647891941746-fe1d53ddc7a6";
+  void _apiLoadLikes(){
+    setState(() {
+      isLoading = true;
+    });
+    DBService.loadLikes().then((value) => {
+      _resLoadPost(value),
+    });
+  }
+
+  _resLoadPost(List<Post> posts){
+    setState(() {
+      items = posts;
+      isLoading = false;
+    });
+  }
+
+  void _apiPostUnlike(Post post){
+    setState(() {
+      isLoading = true;
+      post.liked = false;
+    });
+    DBService.likePost(post, false).then((value) => {
+      _apiLoadLikes()
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    items.add(Post(image_1, "Best photo I have ever seen"));
-    items.add(Post(image_2, "Best photo I have ever seen"));
-    items.add(Post(image_3, "Best photo I have ever seen"));
+    _apiLoadLikes();
   }
 
   @override
@@ -72,21 +90,21 @@ class _MyLikesPageState extends State<MyLikesPage> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(40),
-                      child: Image(
+                      child: post.img_user.isEmpty ? Image(
                         image: AssetImage("assets/images/avatar-3814081_1280.png"),
                         width: 40,
                         height: 40,
-                      ),
+                      ) : Image.network(post.img_user, width: 40, height: 40, fit: BoxFit.cover,),
                     ),
                     SizedBox(width: 10,),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Zafar",
+                        Text(post.fullname,
                           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                         ),
                         SizedBox(height: 3,),
-                        Text("2023-09-03 13:40",
+                        Text(post.date,
                           style: TextStyle(fontWeight: FontWeight.normal,),
                         ),
                       ],
@@ -115,10 +133,15 @@ class _MyLikesPageState extends State<MyLikesPage> {
               Row(
                 children: [
                   IconButton(
-                    onPressed: (){},
-                    icon: Icon(
+                    onPressed: (){
+                      _apiPostUnlike(post);
+                    },
+                    icon: post.liked ? Icon(
                       EvaIcons.heart,
                       color: Colors.red,
+                    ) : Icon(
+                      EvaIcons.heartOutline,
+                      color: Colors.black,
                     ),
                   ),
                   IconButton(

@@ -92,7 +92,6 @@ class DBService{
         .doc(uid).collection(folder_posts).get();
     querySnapshot.docs.forEach((result) {
       posts.add(Post.fromJSON(result.data()));
-
     });
     return posts;
   }
@@ -105,8 +104,11 @@ class DBService{
         .doc(uid).collection(folder_feeds).get();
 
     querySnapshot.docs.forEach((result) {
-      posts.add(Post.fromJSON(result.data()));
+      Post post = Post.fromJSON(result.data());
+      if(post.uid == uid) post.mine = true;
+      posts.add(post);
     });
+
     return posts;
   }
 
@@ -198,5 +200,13 @@ class DBService{
     for (Post post in posts){
       removeFeed(post);
     }
+  }
+
+
+  static Future removePost(Post post)async{
+    String uid = AuthService.currentUserId();
+    await removeFeed(post);
+    return await _firestore.collection(folder_users)
+        .doc(uid).collection(folder_posts).doc(post.id).delete();
   }
 }

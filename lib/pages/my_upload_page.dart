@@ -64,6 +64,7 @@ class _MyUploadPageState extends State<MyUploadPage> {
     });
   }
 
+
   _moveToFeed(){
     setState(() {
       isLoading = false;

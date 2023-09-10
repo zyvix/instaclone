@@ -9,6 +9,7 @@ import 'package:instaclone/services/db_service.dart';
 import 'package:instaclone/services/file_service.dart';
 
 import '../model/post_model.dart';
+import '../services/utils_service.dart';
 
 class MyProfilePage extends StatefulWidget {
   const MyProfilePage({super.key});
@@ -68,9 +69,32 @@ class _MyProfilePageState extends State<MyProfilePage> {
 
   _resLoadPosts(List<Post> posts){
     setState(() {
-      items.insertAll(0, posts);
+      items = posts;
       count_posts = posts.length;
     });
+  }
+
+  _dialogRemovePost(Post post)async{
+    var result = await Utils.dialogCommon(context, "Instagram", "Do you want to remove this post?", false);
+    if(result != null && result){
+      setState(() {
+        isLoading = true;
+      });
+      DBService.removePost(post).then((value) => {
+        _apiLoadPosts(),
+      });
+    }
+  }
+
+
+  _dialogLogout()async{
+    var result = await Utils.dialogCommon(context, "Instagram", "Do you want to logout?", false);
+    if(result != null && result){
+      setState(() {
+        isLoading = true;
+      });
+      AuthService.signOutUser(context);
+    }
   }
 
   @override
@@ -147,7 +171,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
         actions: [
           IconButton(
             onPressed: (){
-              AuthService.signOutUser(context);
+              _dialogLogout();
             },
             icon: Icon(Icons.exit_to_app),
             color: Color.fromRGBO(193, 53, 132, 1),
@@ -179,7 +203,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(35),
-                          child: img_url == null || img_url.isEmpty ? Image(
+                          child: img_url.isEmpty ? Image(
                             image: AssetImage("assets/images/avatar-3814081_1280.png"),
                             width: 70,
                             height: 70,
@@ -340,25 +364,30 @@ class _MyProfilePageState extends State<MyProfilePage> {
   }
 
   Widget _itemOfPost(Post post){
-    return Container(
-      margin: EdgeInsets.all(5),
-      child: Column(
-        children: [
-          Expanded(
-            child: CachedNetworkImage(
-              width: MediaQuery.of(context).size.width,
-              imageUrl: post.img_post,
-              placeholder: (context, url) => Center(
-                child: CircularProgressIndicator(),
+    return GestureDetector(
+      onLongPress: (){
+        _dialogRemovePost(post);
+      },
+      child: Container(
+        margin: EdgeInsets.all(5),
+        child: Column(
+          children: [
+            Expanded(
+              child: CachedNetworkImage(
+                width: MediaQuery.of(context).size.width,
+                imageUrl: post.img_post,
+                placeholder: (context, url) => Center(
+                  child: CircularProgressIndicator(),
+                ),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+                fit: BoxFit.cover,
               ),
-              errorWidget: (context, url, error) => Icon(Icons.error),
-              fit: BoxFit.cover,
             ),
-          ),
-          SizedBox(height: 3,),
-          Text(post.caption, style: TextStyle(color: Colors.black87.withOpacity(0.7)),
-          maxLines: 2,)
-        ],
+            SizedBox(height: 3,),
+            Text(post.caption, style: TextStyle(color: Colors.black87.withOpacity(0.7)),
+              maxLines: 2,)
+          ],
+        ),
       ),
     );
   }

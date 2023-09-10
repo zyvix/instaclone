@@ -14,7 +14,7 @@ class Member{
   int following_count = 0;
 
 
-  Member(this.fullname, this.email);
+  Member(this.fullname, this.email, this.password);
 
   Member.fromJson(Map<String, dynamic> json)
     : uid = json['uid'],

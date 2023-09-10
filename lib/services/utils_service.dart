@@ -79,14 +79,14 @@ class Utils{
                 onPressed: () {
                   Navigator.of(context).pop(false);
                 },
-                child: const Text('Cancel'),
+                child: Text('Cancel'),
               )
                   : const SizedBox.shrink(),
               MaterialButton(
                 onPressed: () {
                   Navigator.of(context).pop(true);
                 },
-                child: const Text('Confirm'),
+                child: Text('Confirm'),
               ),
             ],
           );

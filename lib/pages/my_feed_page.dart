@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:instaclone/services/db_service.dart';
 
 import '../model/post_model.dart';
+import '../services/utils_service.dart';
 class MyFeedPage extends StatefulWidget {
   final PageController? pageController;
   const MyFeedPage({super.key, this.pageController});
@@ -22,13 +23,6 @@ class _MyFeedPageState extends State<MyFeedPage> {
     });
     DBService.loadFeeds().then((value) => {
       _resLoadFeeds(value),
-    });
-  }
-
-  _resLoadFeeds(List<Post> posts){
-    setState(() {
-      items.insertAll(0, posts);
-      isLoading = false;
     });
   }
 
@@ -55,6 +49,27 @@ class _MyFeedPageState extends State<MyFeedPage> {
       post.liked = false;
     });
   }
+
+  _resLoadFeeds(List<Post> posts) {
+    setState(() {
+      items = posts;
+      isLoading = false;
+    });
+
+  }
+
+  _dialogRemovePost(Post post)async{
+    var result = await Utils.dialogCommon(context, "Instagram", "Do you want to remove this post?", false);
+    if(result != null && result){
+      setState(() {
+        isLoading = true;
+      });
+      DBService.removePost(post).then((value) => {
+        _apiLoadFeeds(),
+      });
+    }
+  }
+
 
   @override
   void initState() {
@@ -85,11 +100,11 @@ class _MyFeedPageState extends State<MyFeedPage> {
         children: [
           ListView.builder(
             itemCount: items.length,
+            reverse: false,
             itemBuilder: (ctx, index){
               return _itemOfPost(items[index]);
             },
           ),
-
           isLoading ? Center(
             child: CircularProgressIndicator(),
           ) : SizedBox.shrink(),
@@ -114,7 +129,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(40),
                       child:
-                      post.img_user.isEmpty ? const Image(
+                      post.img_user != null && post.img_user.isEmpty ? const Image(
                         image: AssetImage("assets/images/avatar-3814081_1280.png"),
                         width: 40,
                         height: 40,
@@ -141,10 +156,12 @@ class _MyFeedPageState extends State<MyFeedPage> {
                     )
                   ],
                 ),
-                IconButton(
+                post.mine ? IconButton(
                   icon: Icon(Icons.more_horiz),
-                  onPressed: (){},
-                )
+                  onPressed: (){
+                    _dialogRemovePost(post);
+                  },
+                ) : SizedBox.shrink()
               ],
             ),
           ),

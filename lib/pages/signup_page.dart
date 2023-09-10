@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:instaclone/model/member_model.dart';
 import 'package:instaclone/pages/home_page.dart';
@@ -41,7 +40,7 @@ class _SignUpPageState extends State<SignUpPage> {
       isLoading = true;
     });
     var response = await AuthService.signUpUser(fullname, email, password);
-    Member member = Member(fullname, email);
+    Member member = Member(fullname, email, password);
     DBService.storeMember(member).then((value) => {
       storeMemberToDB(member),
     });

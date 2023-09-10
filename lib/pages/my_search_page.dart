@@ -12,7 +12,7 @@ class MySearchPage extends StatefulWidget {
 
 class _MySearchPageState extends State<MySearchPage> {
   bool isLoading = false;
-  var SearchController = TextEditingController();
+  var searchController = TextEditingController();
   List<Member> items = [];
 
   void _apiSearchMembers(String keyword){
@@ -55,6 +55,8 @@ class _MySearchPageState extends State<MySearchPage> {
     DBService.removePostsFromMyFeed(someone);
   }
 
+  int maxChar = 22;
+
   @override
   void initState() {
     super.initState();
@@ -90,7 +92,7 @@ class _MySearchPageState extends State<MySearchPage> {
                   ),
                   child: TextField(
                     style: TextStyle(color: Colors.black87),
-                    controller: SearchController,
+                    controller: searchController,
                     decoration: InputDecoration(
                       hintText: "Search",
                       border: InputBorder.none,
@@ -136,7 +138,8 @@ class _MySearchPageState extends State<MySearchPage> {
                 width: 45,
                 height: 45,
                 fit: BoxFit.cover,
-              ) : Image.network(member.img_url, width: 45, height: 45, fit: BoxFit.cover,),
+              ) : Image.network(member.img_url,
+                width: 45, height: 45, fit: BoxFit.cover,),
             ),
           ),
           SizedBox(width: 15,),
@@ -144,9 +147,13 @@ class _MySearchPageState extends State<MySearchPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(member.fullname, style: TextStyle(fontWeight: FontWeight.bold),),
+              Text(member.fullname.length < maxChar ? member.fullname :
+              "${member.fullname.substring(0, maxChar)}...",
+                style: TextStyle(fontWeight: FontWeight.bold),),
               SizedBox(height: 3,),
-              Text(member.email, style: TextStyle(color: Colors.black54),),
+              Text(member.email.length < maxChar ? member.email :
+              "${member.email.substring(0, maxChar)}...",
+                style: TextStyle(color: Colors.black54),),
             ],
           ),
           Expanded(

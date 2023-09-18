@@ -1,10 +1,23 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:instaclone/services/prefs_service.dart';
 
 class Utils{
+
+  static Future<void> showLocalNotification(String title, String body) async{
+    var android = const AndroidNotificationDetails("channelId", "channelName",
+        channelDescription: "channelDescription");
+    var iOS = const DarwinNotificationDetails();
+    var platform = NotificationDetails(android: android, iOS: iOS);
+
+    int id = Random().nextInt((pow(2, 31) - 1).toInt());
+    await FlutterLocalNotificationsPlugin().show(id, title, body, platform);
+  }
 
   static void fireToast(String msg){
     Fluttertoast.showToast(
@@ -20,7 +33,7 @@ class Utils{
 
   static Future<Map<String, String>> deviceParams() async {
     Map<String, String> params = {};
-    String fcmToken = "";
+    String fcmToken = await Prefs.loadFCM();
     DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     AndroidDeviceInfo? androidDeviceInfo;
     IosDeviceInfo? iosDeviceInfo;

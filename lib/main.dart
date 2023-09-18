@@ -5,12 +5,17 @@ import 'package:instaclone/pages/home_page.dart';
 import 'package:instaclone/pages/signin_page.dart';
 import 'package:instaclone/pages/signup_page.dart';
 import 'package:instaclone/pages/splash_page.dart';
+import 'package:instaclone/services/notif_service.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  await NotifService.init();
+
+
   runApp(const MyApp());
 }
 

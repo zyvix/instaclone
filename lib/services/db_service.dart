@@ -4,6 +4,7 @@ import 'package:instaclone/services/auth_service.dart';
 import 'package:instaclone/services/utils_service.dart';
 
 import '../model/post_model.dart';
+import 'hive.dart';
 
 class DBService{
   static final _firestore = FirebaseFirestore.instance;
@@ -209,4 +210,68 @@ class DBService{
     return await _firestore.collection(folder_users)
         .doc(uid).collection(folder_posts).doc(post.id).delete();
   }
+
+
+  static Future<Member> loadOtherMember(String uid) async{
+    var value = await _firestore.collection(folder_users).doc(uid).get();
+    Member member = Member.fromJson(value.data()!);
+
+    var querySnapshot1 = await _firestore.collection(folder_users)
+        .doc(uid).collection(folder_followers).get();
+    member.followers_count = querySnapshot1.docs.length;
+
+    var querySnapshot2 = await _firestore.collection(folder_users)
+        .doc(uid).collection(folder_following).get();
+    member.following_count = querySnapshot2.docs.length;
+
+    return member;
+  }
+
+  static Future<List<Post>> loadOtherPosts(String uid) async {
+    List<Post> posts = [];
+    var querySnapshot = await _firestore.collection(folder_users)
+        .doc(uid).collection(folder_posts).get();
+    querySnapshot.docs.forEach((result) {
+      posts.add(Post.fromJSON(result.data()));
+    });
+    return posts;
+  }
+
+  static Future<Member> loadUser(String? userUid) async {
+    userUid ??= HiveDB.loadUid();
+    var value = await _firestore.collection(folder_users).doc(userUid).get();
+    Member user = Member.fromJson(value.data()!);
+
+    var querySnapshot1 = await _firestore
+        .collection(folder_users)
+        .doc(userUid)
+        .collection(folder_followers)
+        .get();
+    user.followers_count = querySnapshot1.docs.length;
+
+    var querySnapshot2 = await _firestore
+        .collection(folder_users)
+        .doc(userUid)
+        .collection(folder_following)
+        .get();
+    user.following_count = querySnapshot2.docs.length;
+
+    return user;
+  }
+
+  static Future<List<Post>> loadOtherfPosts(String? userUid) async {
+    List<Post> posts = [];
+    userUid ??= HiveDB.loadUid();
+    var querySnapshot = await _firestore
+        .collection(folder_users)
+        .doc(userUid)
+        .collection(folder_posts)
+        .get();
+    for (var element in querySnapshot.docs) {
+      Post post = Post.fromJSON(element.data());
+      posts.add(post);
+    }
+    return posts;
+  }
+
 }

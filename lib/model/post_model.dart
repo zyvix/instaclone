@@ -7,7 +7,7 @@ class Post{
   String caption = "";
   String date = "";
   bool liked = false;
-
+  String memberId = "";
   bool mine = false;
 
   Post( this.caption, this.img_post);
@@ -32,4 +32,6 @@ class Post{
     'date' : date,
     'liked' : liked,
   };
+
+
 }

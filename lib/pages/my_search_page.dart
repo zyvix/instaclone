@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:instaclone/pages/userprofile.dart';
 import 'package:instaclone/services/db_service.dart';
 
 import '../model/member_model.dart';
@@ -118,76 +119,83 @@ class _MySearchPageState extends State<MySearchPage> {
   }
 
   Widget _itemOfMember(Member member){
-    return Container(
-      height: 90,
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(70),
-              border: Border.all(
-                width: 1.5,
-                color: Color.fromRGBO(193, 53, 132, 1),
-              )
+    return GestureDetector(
+      child: Container(
+        height: 90,
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(70),
+                  border: Border.all(
+                    width: 1.5,
+                    color: Color.fromRGBO(193, 53, 132, 1),
+                  )
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(22.5),
+                child: member.img_url.isEmpty ? Image(
+                  image: AssetImage("assets/images/avatar-3814081_1280.png"),
+                  width: 45,
+                  height: 45,
+                  fit: BoxFit.cover,
+                ) : Image.network(member.img_url,
+                  width: 45, height: 45, fit: BoxFit.cover,),
+              ),
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(22.5),
-              child: member.img_url.isEmpty ? Image(
-                image: AssetImage("assets/images/avatar-3814081_1280.png"),
-                width: 45,
-                height: 45,
-                fit: BoxFit.cover,
-              ) : Image.network(member.img_url,
-                width: 45, height: 45, fit: BoxFit.cover,),
-            ),
-          ),
-          SizedBox(width: 15,),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(member.fullname.length < maxChar ? member.fullname :
-              "${member.fullname.substring(0, maxChar)}...",
-                style: TextStyle(fontWeight: FontWeight.bold),),
-              SizedBox(height: 3,),
-              Text(member.email.length < maxChar ? member.email :
-              "${member.email.substring(0, maxChar)}...",
-                style: TextStyle(color: Colors.black54),),
-            ],
-          ),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            SizedBox(width: 15,),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                GestureDetector(
-                  onTap: (){
-                    if(member.followed){
-                      _apiUnfollowMember(member);
-                    }else{
-                      _apiFollowMember(member);
-                    }
-                  },
-                  child: Container(
-                    width: 100,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(3),
-                      border: Border.all(
-                        width: 1,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    child: Center(
-                      child: member.followed ? Text("Following") : Text("Follow"),
-                    ),
-                  ),
-                ),
+                Text(member.fullname.length < maxChar ? member.fullname :
+                "${member.fullname.substring(0, maxChar)}...",
+                  style: TextStyle(fontWeight: FontWeight.bold),),
+                SizedBox(height: 3,),
+                Text(member.email.length < maxChar ? member.email :
+                "${member.email.substring(0, maxChar)}...",
+                  style: TextStyle(color: Colors.black54),),
               ],
             ),
-          ),
-        ],
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: (){
+                      if(member.followed){
+                        _apiUnfollowMember(member);
+                      }else{
+                        _apiFollowMember(member);
+                      }
+                    },
+                    child: Container(
+                      width: 100,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(3),
+                        border: Border.all(
+                          width: 1,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      child: Center(
+                        child: member.followed ? Text("Following") : Text("Follow"),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
+      onTap: (){
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => UserProfilePage(member: member)
+        ));
+      },
     );
   }
 

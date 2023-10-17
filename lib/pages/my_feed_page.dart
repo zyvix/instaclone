@@ -2,9 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:instaclone/services/db_service.dart';
-
+import 'package:share/share.dart';
 import '../model/post_model.dart';
 import '../services/utils_service.dart';
+import 'feeduserpage.dart';
 class MyFeedPage extends StatefulWidget {
   final PageController? pageController;
   const MyFeedPage({super.key, this.pageController});
@@ -60,7 +61,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
 
   _dialogRemovePost(Post post)async{
     var result = await Utils.dialogCommon(context, "Instagram", "Do you want to remove this post?", false);
-    if(result != null && result){
+    if(result){
       setState(() {
         isLoading = true;
       });
@@ -119,51 +120,62 @@ class _MyFeedPageState extends State<MyFeedPage> {
       child: Column(
         children: [
           Divider(),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(40),
-                      child:
-                      post.img_user != null && post.img_user.isEmpty ? const Image(
-                        image: AssetImage("assets/images/avatar-3814081_1280.png"),
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
-                      ) :
-                      Image.network(post.img_user,
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
+          GestureDetector(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child:
+                        post.img_user.isEmpty ? const Image(
+                          image: AssetImage("assets/images/avatar-3814081_1280.png"),
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        ) :
+                        Image.network(post.img_user,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 10,),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(post.fullname,
-                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                        ),
-                        SizedBox(height: 3,),
-                        Text(post.date,
-                          style: TextStyle(fontWeight: FontWeight.normal,),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-                post.mine ? IconButton(
-                  icon: Icon(Icons.more_horiz),
-                  onPressed: (){
-                    _dialogRemovePost(post);
-                  },
-                ) : SizedBox.shrink()
-              ],
+                      SizedBox(width: 10,),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(post.fullname,
+                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                          ),
+                          SizedBox(height: 3,),
+                          Text(post.date,
+                            style: TextStyle(fontWeight: FontWeight.normal,),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                  post.mine ? IconButton(
+                    icon: Icon(Icons.more_horiz),
+                    onPressed: (){
+                      _dialogRemovePost(post);
+                    },
+                  ) : SizedBox.shrink()
+                ],
+              ),
             ),
+              onTap: () {
+                if (!post.mine) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              OtherProfilePage(uid: post.uid)));
+                }
+              }
           ),
           SizedBox(height: 8,),
           CachedNetworkImage(
@@ -196,7 +208,9 @@ class _MyFeedPageState extends State<MyFeedPage> {
                     ),
                   ),
                   IconButton(
-                    onPressed: (){},
+                    onPressed: () async{
+                      await Share.share("Check out this post: ${post.caption}", subject: "Share Post");
+                    },
                     icon: Icon(
                       EvaIcons.shareOutline,
                     ),

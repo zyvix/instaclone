@@ -4,6 +4,7 @@ class Member{
   String email = "";
   String password = "";
   String img_url = "";
+  String handle = "";
 
   String device_id = "";
   String device_type = "";
@@ -14,7 +15,7 @@ class Member{
   int following_count = 0;
 
 
-  Member(this.fullname, this.email, this.password);
+  Member(this.fullname, this.email, this.password, this.handle);
 
   Member.fromJson(Map<String, dynamic> json)
     : uid = json['uid'],
@@ -24,6 +25,7 @@ class Member{
       img_url = json['img_url'],
       device_id = json['device_id'],
       device_type = json['device_type'],
+      handle = json['handle'],
       device_token = json['device_token'];
 
   Map<String, dynamic> toJson() => {
@@ -35,5 +37,6 @@ class Member{
     'device_id' : device_id,
     'device_type' : device_type,
     'device_token' : device_token,
+    'handle' : handle,
   };
 }

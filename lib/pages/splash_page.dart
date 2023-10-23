@@ -107,7 +107,7 @@ class _SplashPageState extends State<SplashPage> {
             ),
 
             Text(
-              "All right reserved",
+              "All rights reserved",
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 16

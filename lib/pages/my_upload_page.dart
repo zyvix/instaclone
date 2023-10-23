@@ -52,6 +52,7 @@ class _MyUploadPageState extends State<MyUploadPage> {
   }
 
   void _resPostImage(String downloadUrl){
+    if(!mounted) return;
     String caption = captionController.text.toString().trim();
     Post post = Post(caption, downloadUrl);
     _apiStorePost(post);

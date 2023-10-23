@@ -21,6 +21,7 @@ class _SignUpPageState extends State<SignUpPage> {
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
   var cpasswordController = TextEditingController();
+  var handleController = TextEditingController();
 
   _callSignInPage(){
     Navigator.pushReplacementNamed(context, SignInPage.id);
@@ -31,6 +32,7 @@ class _SignUpPageState extends State<SignUpPage> {
     String password = passwordController.text.toString().trim();
     String email = emailController.text.toString().trim();
     String cpassword = cpasswordController.text.toString().trim();
+    String handle = handleController.text.toString().trim();
     if(email.isEmpty || password.isEmpty || fullname.isEmpty) return;
     if(cpassword != password){
       Utils.fireToast("Password and confirm password do not match");
@@ -39,8 +41,8 @@ class _SignUpPageState extends State<SignUpPage> {
     setState(() {
       isLoading = true;
     });
-    var response = await AuthService.signUpUser(fullname, email, password);
-    Member member = Member(fullname, email, password);
+    await AuthService.signUpUser(fullname, email, password, handle);
+    Member member = Member(fullname, email, password, handle);
     DBService.storeMember(member).then((value) => {
       storeMemberToDB(member),
     });
@@ -119,6 +121,25 @@ class _SignUpPageState extends State<SignUpPage> {
                             style: TextStyle(color: Colors.white),
                             decoration: InputDecoration(
                                 hintText: 'Email',
+                                border: InputBorder.none,
+                                hintStyle: TextStyle(fontSize: 17, color: Colors.white54)
+                            ),
+                          ),
+                        ),
+                        //#handle
+                        Container(
+                          margin: EdgeInsets.only(top: 10),
+                          height: 50,
+                          padding: EdgeInsets.only(left: 10, right: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(7),
+                          ),
+                          child: TextField(
+                            controller: handleController,
+                            style: TextStyle(color: Colors.white),
+                            decoration: const InputDecoration(
+                                hintText: 'Handle',
                                 border: InputBorder.none,
                                 hintStyle: TextStyle(fontSize: 17, color: Colors.white54)
                             ),

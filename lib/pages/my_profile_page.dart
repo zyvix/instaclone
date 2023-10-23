@@ -1,12 +1,15 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:instaclone/model/member_model.dart';
+import 'package:instaclone/pages/post_page.dart';
 import 'package:instaclone/services/auth_service.dart';
 import 'package:instaclone/services/db_service.dart';
 import 'package:instaclone/services/file_service.dart';
+import 'package:share/share.dart';
 
 import '../model/post_model.dart';
 import '../services/utils_service.dart';
@@ -23,7 +26,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
   int axisCount = 1;
   List<Post> items = [];
   File?  _image;
-  String fullname = "", email = "", img_url = "";
+  String fullname = "", email = "", img_url = "", handle = "";
   int count_posts = 0, count_followers = 0, count_following = 0;
 
   final ImagePicker _picker = ImagePicker();
@@ -57,6 +60,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
   _apiUpdateUser(String downloadUrl)async{
     Member member = await DBService.loadMember();
     member.img_url = downloadUrl;
+    await DBService.refreshPost();
     await DBService.updateMember(member);
     _apiLoadMember();
   }
@@ -107,27 +111,25 @@ class _MyProfilePageState extends State<MyProfilePage> {
   void _showPicker(context){
     showModalBottomSheet(context: context, builder: (BuildContext context){
       return SafeArea(
-        child: Container(
-          child: Wrap(
-              children: [
-                new ListTile(
-                  leading: new Icon(Icons.photo_library),
-                  title: Text("Pick a photo"),
-                  onTap: (){
-                    _imgFromGallery();
-                    Navigator.of(context).pop();
-                  },
-                ),
-                new ListTile(
-                  leading: new Icon(Icons.photo_camera),
-                  title: Text("Take a photo"),
-                  onTap: (){
-                    _imgFromCamera();
-                    Navigator.of(context).pop();
-                  },
-                )
-              ]
-          ),
+        child: Wrap(
+            children: [
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text("Pick a photo"),
+                onTap: (){
+                  _imgFromGallery();
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_camera),
+                title: Text("Take a photo"),
+                onTap: (){
+                  _imgFromCamera();
+                  Navigator.of(context).pop();
+                },
+              )
+            ]
         ),
       );
     });
@@ -145,11 +147,36 @@ class _MyProfilePageState extends State<MyProfilePage> {
   void _showMemberInfo(Member member){
     setState(() {
       isLoading = false;
-      this.fullname = member.fullname;
-      this.email = member.email;
-      this.img_url = member.img_url;
-      this.count_following = member.following_count;
-      this.count_followers = member.followers_count;
+      fullname = member.fullname;
+      email = member.email;
+      img_url = member.img_url;
+      count_following = member.following_count;
+      count_followers = member.followers_count;
+      handle = member.handle;
+    });
+  }
+
+  void _apiPostLike(Post post) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    await DBService.likePost(post, true);
+    setState(() {
+      isLoading = false;
+      post.liked = true;
+    });
+  }
+
+  void _apiPostUnLike(Post post) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    await DBService.likePost(post, false);
+    setState(() {
+      isLoading = false;
+      post.liked = false;
     });
   }
 
@@ -239,7 +266,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                 Text(fullname.toUpperCase(),
                   style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)),
                 SizedBox(height: 3,),
-                Text(email,
+                Text(handle,
                   style: TextStyle(color: Colors.black54, fontSize: 14, fontWeight: FontWeight.normal)),
 
                 //mycounts
@@ -368,6 +395,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
       onLongPress: (){
         _dialogRemovePost(post);
       },
+      onTap: (){
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => PostPage(post: post)
+        ));
+      },
       child: Container(
         margin: EdgeInsets.all(5),
         child: Column(
@@ -376,16 +408,58 @@ class _MyProfilePageState extends State<MyProfilePage> {
               child: CachedNetworkImage(
                 width: MediaQuery.of(context).size.width,
                 imageUrl: post.img_post,
-                placeholder: (context, url) => Center(
+                placeholder: (context, url) => const Center(
                   child: CircularProgressIndicator(),
                 ),
                 errorWidget: (context, url, error) => Icon(Icons.error),
                 fit: BoxFit.cover,
               ),
             ),
-            SizedBox(height: 3,),
-            Text(post.caption, style: TextStyle(color: Colors.black87.withOpacity(0.7)),
-              maxLines: 2,)
+            const SizedBox(height: 3,),
+            Row(
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: (){
+                        if(!post.liked){
+                          _apiPostLike(post);
+                        }else{
+                          _apiPostUnLike(post);
+                        }
+                      },
+                      icon: post.liked ? Icon(
+                        EvaIcons.heart,
+                        color: Colors.red,
+                      ) : Icon(
+                        EvaIcons.heartOutline,
+                        color: Colors.black,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () async{
+                        await Share.share("Check out this post: ${post.caption}", subject: "Share Post");
+                      },
+                      icon: Icon(
+                        EvaIcons.shareOutline,
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+            Container(
+              width: MediaQuery.of(context).size.width,
+              margin: EdgeInsets.only(right: 10, left: 10, bottom: 10),
+              child: RichText(
+                softWrap: true,
+                overflow: TextOverflow.visible,
+                text: TextSpan(
+                    text: "${post.caption}",
+                    style: TextStyle(color: Colors.black)
+                ),
+              ),
+            ),
           ],
         ),
       ),

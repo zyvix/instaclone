@@ -72,12 +72,35 @@ class DBService{
     post.fullname = me.fullname;
     post.date = Utils.currentDate();
     post.img_user = me.img_url;
+    post.handle = me.handle;
 
     String postId = _firestore.collection(folder_users).doc(me.uid).collection(folder_posts).doc().id;
     post.id = postId;
     await _firestore.collection(folder_users).doc(me.uid).collection(folder_posts).doc(postId).set(post.toJson());
 
     return post;
+  }
+
+  static Future<List<Post>> refreshPost()async{
+    List<Post> posts = [];
+    Member me = await loadMember();
+
+    var querySnapshot = await _firestore
+        .collection(folder_users)
+    .doc(me.uid).collection(folder_posts).get();
+
+    querySnapshot.docs.forEach((result) {
+      posts.add(Post.fromJSON(result.data()));
+    });
+
+    posts.forEach((element) {
+      element.uid = me.uid;
+      element.fullname = me.fullname;
+      element.img_user = me.img_url;
+      element.handle = me.handle;
+    });
+
+    return posts;
   }
 
   static Future<Post> storeFeed(Post post)async{
@@ -139,7 +162,7 @@ class DBService{
     return posts;
   }
 
-  static Future<Member> followMember(Member someone) async{
+  static Future<bool> followMember(Member someone) async{
     Member me = await loadMember();
 
     await _firestore.collection(folder_users)
@@ -150,10 +173,10 @@ class DBService{
         .doc(someone.uid).collection(folder_followers)
         .doc(me.uid).set(me.toJson());
 
-    return someone;
+    return true;
   }
 
-  static Future<Member> unFollowMember(Member someone) async{
+  static Future<bool> unFollowMember(Member someone) async{
     Member me = await loadMember();
 
     await _firestore.collection(folder_users)
@@ -164,7 +187,7 @@ class DBService{
         .doc(someone.uid).collection(folder_followers)
         .doc(me.uid).delete();
 
-    return someone;
+    return false;
   }
 
   static Future storePostsToMyFeed(Member someone) async {
@@ -272,6 +295,29 @@ class DBService{
       posts.add(post);
     }
     return posts;
+  }
+
+  static Future<Post> loadThatPost(String? userUid, String uid) async {
+    print(uid);
+    var querySnapshot = await _firestore
+        .collection(folder_users)
+        .doc(userUid)
+        .collection(folder_posts)
+        .doc(uid).get();
+    Post post = Post.fromJSON(querySnapshot.data()!);
+    return post;
+  }
+
+  static Future<bool> isFollowing(Member someone) async {
+
+    String myUid = AuthService.currentUserId();
+
+    var result = await _firestore.collection(folder_users)
+        .doc(myUid).collection(folder_following)
+        .doc(someone.uid).get();
+
+    return result.exists;
+
   }
 
 }

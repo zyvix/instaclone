@@ -25,7 +25,13 @@ class _MySearchPageState extends State<MySearchPage> {
     });
   }
 
-  void _respSearchMembers(List<Member> members){
+  void _respSearchMembers(List<Member> members)async{
+    for (var member in members) {
+      member.followed = await DBService.isFollowing(member);
+    }
+
+    if(!mounted) return;
+
     setState(() {
       items = members;
       isLoading = false;
@@ -36,9 +42,9 @@ class _MySearchPageState extends State<MySearchPage> {
     setState(() {
       isLoading =true;
     });
-    await DBService.followMember(someone);
+    bool followed = await DBService.followMember(someone);
     setState(() {
-      someone.followed = true;
+      someone.followed = followed;
       isLoading = false;
     });
     DBService.storePostsToMyFeed(someone);
@@ -48,9 +54,9 @@ class _MySearchPageState extends State<MySearchPage> {
     setState(() {
       isLoading =true;
     });
-    await DBService.unFollowMember(someone);
+    bool followed = await DBService.unFollowMember(someone);
     setState(() {
-      someone.followed = false;
+      someone.followed = followed;
       isLoading = false;
     });
     DBService.removePostsFromMyFeed(someone);
@@ -149,13 +155,9 @@ class _MySearchPageState extends State<MySearchPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(member.fullname.length < maxChar ? member.fullname :
-                "${member.fullname.substring(0, maxChar)}...",
+                Text(member.handle.length < maxChar ? member.handle :
+                "${member.handle.substring(0, maxChar)}...",
                   style: TextStyle(fontWeight: FontWeight.bold),),
-                SizedBox(height: 3,),
-                Text(member.email.length < maxChar ? member.email :
-                "${member.email.substring(0, maxChar)}...",
-                  style: TextStyle(color: Colors.black54),),
               ],
             ),
             Expanded(
@@ -174,6 +176,7 @@ class _MySearchPageState extends State<MySearchPage> {
                       width: 100,
                       height: 30,
                       decoration: BoxDecoration(
+                        color: member.followed ? Colors.white : Color.fromRGBO(193, 53, 132, 1),
                         borderRadius: BorderRadius.circular(3),
                         border: Border.all(
                           width: 1,
@@ -181,7 +184,7 @@ class _MySearchPageState extends State<MySearchPage> {
                         ),
                       ),
                       child: Center(
-                        child: member.followed ? Text("Following") : Text("Follow"),
+                        child: member.followed ? Text("Following") : Text("Follow", style: TextStyle(color: Colors.white),),
                       ),
                     ),
                   ),

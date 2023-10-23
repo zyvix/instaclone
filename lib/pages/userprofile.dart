@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:instaclone/model/member_model.dart';
+import 'package:instaclone/pages/post_page.dart';
 import 'package:instaclone/services/db_service.dart';
 import '../model/post_model.dart';
 
@@ -20,7 +21,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   List<Post> items = [];
   String fullname = "", email = "", img_url = "";
   int count_posts = 0, count_followers = 0, count_following = 0;
-  Member fullMember = Member("", "", "");
+  Member fullMember = Member("", "", "", "");
 
   _resLoadPosts(List<Post> posts){
     setState(() {
@@ -51,11 +52,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
   void _showMemberInfo(Member member){
     setState(() {
       isLoading = false;
-      this.fullname = member.fullname;
-      this.email = member.email;
-      this.img_url = member.img_url;
-      this.count_following = member.following_count;
-      this.count_followers = member.followers_count;
+      fullname = member.fullname;
+      email = member.email;
+      img_url = member.img_url;
+      count_following = member.following_count;
+      count_followers = member.followers_count;
     });
   }
 
@@ -85,7 +86,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         children: [
           Container(
             width: double.infinity,
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             child: Column(
               children: [
                 GestureDetector(
@@ -93,17 +94,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   child: Stack(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(2),
+                        padding: const EdgeInsets.all(2),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(70),
                           border: Border.all(
                             width: 1.5,
-                            color: Color.fromRGBO(193, 53, 132, 1),
+                            color: const Color.fromRGBO(193, 53, 132, 1),
                           ),
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(35),
-                          child: img_url.isEmpty ? Image(
+                          child: img_url.isEmpty ? const Image(
                             image: AssetImage("assets/images/avatar-3814081_1280.png"),
                             width: 70,
                             height: 70,
@@ -121,16 +122,16 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 ),
 
                 //myinfo
-                SizedBox(height: 10,),
+                const SizedBox(height: 10,),
                 Text(fullname.toUpperCase(),
-                    style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)),
-                SizedBox(height: 3,),
+                    style: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 3,),
                 Text(email,
-                    style: TextStyle(color: Colors.black54, fontSize: 14, fontWeight: FontWeight.normal)),
+                    style: const TextStyle(color: Colors.black54, fontSize: 14, fontWeight: FontWeight.normal)),
 
                 //mycounts
                 Container(
-                  margin: EdgeInsets.only(top: 10),
+                  margin: const EdgeInsets.only(top: 10),
                   height: 80,
                   child: Row(
                     children: [
@@ -139,13 +140,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
                           child: Column(
                             children: [
                               Text(count_posts.toString(),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),),
-                              SizedBox(height: 3,),
-                              Text("POSTS",
+                              const SizedBox(height: 3,),
+                              const Text("POSTS",
                                 style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: 14,
@@ -160,13 +161,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
                           child: Column(
                             children: [
                               Text(count_followers.toString(),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),),
-                              SizedBox(height: 3,),
-                              Text("FOLLOWERS",
+                              const SizedBox(height: 3,),
+                              const Text("FOLLOWERS",
                                 style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: 14,
@@ -181,13 +182,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
                           child: Column(
                             children: [
                               Text(count_following.toString(),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),),
-                              SizedBox(height: 3,),
-                              Text("FOLLOWING",
+                              const SizedBox(height: 3,),
+                              const Text("FOLLOWING",
                                 style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: 14,
@@ -210,7 +211,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                             axisCount = 1;
                           });
                         },
-                        child: Icon(
+                        child: const Icon(
                           Icons.list_alt,
                         ),
                       ),
@@ -222,14 +223,14 @@ class _UserProfilePageState extends State<UserProfilePage> {
                             axisCount = 2;
                           });
                         },
-                        child: Icon(
+                        child: const Icon(
                           Icons.grid_view,
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 10,),
+                const SizedBox(height: 10,),
                 Expanded(
                   child: GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -251,24 +252,31 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Widget _itemOfPost(Post post){
     return Container(
-      margin: EdgeInsets.all(5),
-      child: Column(
-        children: [
-          Expanded(
-            child: CachedNetworkImage(
-              width: MediaQuery.of(context).size.width,
-              imageUrl: post.img_post,
-              placeholder: (context, url) => Center(
-                child: CircularProgressIndicator(),
+      margin: const EdgeInsets.all(5),
+      child: GestureDetector(
+        onTap: (){
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => PostPage(post: post)
+          ));
+        },
+        child: Column(
+          children: [
+            Expanded(
+              child: CachedNetworkImage(
+                width: MediaQuery.of(context).size.width,
+                imageUrl: post.img_post,
+                placeholder: (context, url) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                fit: BoxFit.cover,
               ),
-              errorWidget: (context, url, error) => Icon(Icons.error),
-              fit: BoxFit.cover,
             ),
-          ),
-          SizedBox(height: 3,),
-          Text(post.caption, style: TextStyle(color: Colors.black87.withOpacity(0.7)),
-            maxLines: 2,)
-        ],
+            const SizedBox(height: 3,),
+            Text(post.caption, style: TextStyle(color: Colors.black87.withOpacity(0.7)),
+              maxLines: 2,)
+          ],
+        ),
       ),
     );
   }

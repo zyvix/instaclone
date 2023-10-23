@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:instaclone/model/member_model.dart';
+import 'package:instaclone/pages/post_page.dart';
 import 'package:instaclone/services/db_service.dart';
 
 import '../model/post_model.dart';
@@ -288,27 +289,34 @@ class _OtherProfilePageState extends State<OtherProfilePage> {
   Widget _itemOfPost(Post post) {
     return Container(
       margin: const EdgeInsets.all(5),
-      child: Column(
-        children: [
-          Expanded(
-            child: CachedNetworkImage(
-              width: double.infinity,
-              imageUrl: post.img_post,
-              placeholder: (context, url) =>
-              const Center(child: CircularProgressIndicator.adaptive()),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-              fit: BoxFit.cover,
+      child: GestureDetector(
+        onTap: (){
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => PostPage(post: post)
+          ));
+        },
+        child: Column(
+          children: [
+            Expanded(
+              child: CachedNetworkImage(
+                width: double.infinity,
+                imageUrl: post.img_post,
+                placeholder: (context, url) =>
+                const Center(child: CircularProgressIndicator.adaptive()),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          const SizedBox(
-            height: 3,
-          ),
-          Text(
-            post.caption,
-            style: TextStyle(color: Colors.black87.withOpacity(0.7)),
-            maxLines: 2,
-          )
-        ],
+            const SizedBox(
+              height: 3,
+            ),
+            Text(
+              post.caption,
+              style: TextStyle(color: Colors.black87.withOpacity(0.7)),
+              maxLines: 2,
+            )
+          ],
+        ),
       ),
     );
   }

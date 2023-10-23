@@ -21,7 +21,7 @@ class AuthService{
     return firebaseUser;
   }
 
-  static Future<User?> signUpUser(String fullname, String email, String password)async{
+  static Future<User?> signUpUser(String fullname, String email, String password, String handle)async{
     var authResult = await _auth.createUserWithEmailAndPassword(email: email, password: password);
     User? user = authResult.user;
     return user;

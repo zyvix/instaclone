@@ -9,6 +9,7 @@ class Post{
   bool liked = false;
   String memberId = "";
   bool mine = false;
+  String handle = "";
 
   Post( this.caption, this.img_post);
 
@@ -20,6 +21,7 @@ class Post{
         id = json['id'],
         caption = json['caption'],
         date = json['date'],
+  handle = json['handle'],
   liked = json['liked'];
 
   Map<String, dynamic> toJson() => {
@@ -31,6 +33,7 @@ class Post{
     'caption' : caption,
     'date' : date,
     'liked' : liked,
+    'handle' : handle,
   };
 
 

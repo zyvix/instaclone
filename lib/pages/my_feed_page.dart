@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:instaclone/model/member_model.dart';
 import 'package:instaclone/services/db_service.dart';
 import 'package:share/share.dart';
 import '../model/post_model.dart';
@@ -85,14 +86,14 @@ class _MyFeedPageState extends State<MyFeedPage> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        title: Text("Instagram", style: TextStyle(color: Colors.black, fontFamily: 'Billabong', fontSize: 30),),
+        title: const Text("Instagram", style: TextStyle(color: Colors.black, fontFamily: 'Billabong', fontSize: 30),),
         actions: [
           IconButton(
             onPressed: (){
-              widget.pageController!.animateToPage(2, duration: Duration(milliseconds: 200), curve: Curves.easeIn);
+              widget.pageController!.animateToPage(2, duration: const Duration(milliseconds: 100), curve: Curves.easeIn);
             },
-            color: Color.fromRGBO(193, 53, 132, 1),
-            icon: Icon(Icons.camera_alt),
+            color: const Color.fromRGBO(193, 53, 132, 1),
+            icon: const Icon(Icons.camera_alt),
           ),
         ],
       ),
@@ -106,9 +107,9 @@ class _MyFeedPageState extends State<MyFeedPage> {
               return _itemOfPost(items[index]);
             },
           ),
-          isLoading ? Center(
+          isLoading ? const Center(
             child: CircularProgressIndicator(),
-          ) : SizedBox.shrink(),
+          ) : const SizedBox.shrink(),
         ],
       )
     );
@@ -119,7 +120,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
       color: Colors.white,
       child: Column(
         children: [
-          Divider(),
+          const Divider(),
           GestureDetector(
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 10),
@@ -147,10 +148,10 @@ class _MyFeedPageState extends State<MyFeedPage> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(post.fullname,
+                          Text(post.handle,
                             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                           ),
-                          SizedBox(height: 3,),
+                          SizedBox(height: 2,),
                           Text(post.date,
                             style: TextStyle(fontWeight: FontWeight.normal,),
                           ),
@@ -177,14 +178,14 @@ class _MyFeedPageState extends State<MyFeedPage> {
                 }
               }
           ),
-          SizedBox(height: 8,),
+          const SizedBox(height: 8,),
           CachedNetworkImage(
             width: MediaQuery.of(context).size.width,
             imageUrl: post.img_post,
-            placeholder: (context, url) => Center(
+            placeholder: (context, url) => const Center(
               child: CircularProgressIndicator(),
             ),
-            errorWidget: (context, url, error) => Icon(Icons.error),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
             fit: BoxFit.cover,
           ),
           Row(
@@ -199,19 +200,19 @@ class _MyFeedPageState extends State<MyFeedPage> {
                         _apiPostUnLike(post);
                       }
                     },
-                    icon: post.liked ? Icon(
+                    icon: post.liked ? const Icon(
                       EvaIcons.heart,
                       color: Colors.red,
-                    ) : Icon(
+                    ) : const Icon(
                       EvaIcons.heartOutline,
                       color: Colors.black,
                     ),
                   ),
                   IconButton(
                     onPressed: () async{
-                      await Share.share("Check out this post: ${post.caption}", subject: "Share Post");
+                      await Share.share(post.img_post, subject: "Check out this post: ${post.caption}");
                     },
-                    icon: Icon(
+                    icon: const Icon(
                       EvaIcons.shareOutline,
                     ),
                   ),
@@ -221,13 +222,13 @@ class _MyFeedPageState extends State<MyFeedPage> {
           ),
           Container(
             width: MediaQuery.of(context).size.width,
-            margin: EdgeInsets.only(right: 10, left: 10, bottom: 10),
+            margin: const EdgeInsets.only(right: 10, left: 10, bottom: 10),
             child: RichText(
               softWrap: true,
               overflow: TextOverflow.visible,
               text: TextSpan(
                 text: "${post.caption}",
-                style: TextStyle(color: Colors.black)
+                style: const TextStyle(color: Colors.black)
               ),
             ),
           ),
